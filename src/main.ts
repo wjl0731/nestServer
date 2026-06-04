@@ -30,7 +30,7 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0')
 
   const logger = new Logger('Bootstrap')
-  logger.log(`🚀 NestJS server running on http://localhost:${port}/api`)
+  logger.log(`NestJS server listening on port ${port} with prefix /api`)
 }
 
 bootstrap()
