@@ -11,7 +11,17 @@ export class AppController {
   index() {
     return {
       name: 'nestjs-server',
-      endpoints: ['/api/health', '/api/chat/models', '/api/chat/completions', '/api/chat/stream']
+      endpoints: [
+        '/api/health',
+        '/api/auth/captcha',
+        '/api/auth/email-code',
+        '/api/auth/register',
+        '/api/auth/login',
+        '/api/user/info',
+        '/api/chat/models',
+        '/api/chat/completions',
+        '/api/chat/stream'
+      ]
     }
   }
 }
