@@ -49,6 +49,44 @@ export class MatchService implements OnModuleInit {
     return a.filter((x) => b.some((y) => x === y || x.includes(y) || y.includes(x)))
   }
 
+  /** 条件是否为空（没传任何公司/机构名，也没给领域/阶段/金额/城市）→ 视为“列出全部” */
+  private isEmptyCriteria(c: Criteria): boolean {
+    return c.fields.length === 0 && !c.stage && c.amount === undefined && !c.city
+  }
+
+  private mapInstitution(inst: Institution, score: number, reasons: string[]) {
+    return {
+      name: inst.name,
+      type: inst.type,
+      fields: inst.fields,
+      stages: inst.stages,
+      amountRange: `${inst.amountMin}-${inst.amountMax}万元`,
+      city: inst.city,
+      preference: inst.preference,
+      contact: inst.contact,
+      phone: inst.phone,
+      matchScore: score,
+      reasons
+    }
+  }
+
+  private mapCompany(c: Company, score: number, reasons: string[]) {
+    return {
+      name: c.name,
+      field: c.field,
+      city: c.city,
+      stage: c.stage,
+      fundingNeed: `${c.fundingNeed}万元`,
+      valuation: `${c.valuation}万元`,
+      teamSize: c.teamSize,
+      business: c.business,
+      contact: c.contact,
+      phone: c.phone,
+      matchScore: score,
+      reasons
+    }
+  }
+
   // ── 为公司找机构 ─────────────────────────────────────────
 
   async matchInstitutions(dto: MatchInstitutionsDto) {
@@ -61,6 +99,18 @@ export class MatchService implements OnModuleInit {
      * 并对 fields 建标签表或全文索引后再排序 LIMIT，避免全表加载。
      */
     const all = await this.institutions.find()
+
+    // 无任何条件 → 列出全部投资机构（用于「有哪些机构」这类问题）
+    if (this.isEmptyCriteria(criteria)) {
+      const list = all.slice(0, dto.limit ?? 20)
+      return {
+        query: criteria,
+        listAll: true,
+        count: list.length,
+        matches: list.map((inst) => this.mapInstitution(inst, 0, []))
+      }
+    }
+
     const scored = all
       .map((inst) => {
         const reasons: string[] = []
@@ -98,19 +148,7 @@ export class MatchService implements OnModuleInit {
     return {
       query: criteria,
       count: scored.length,
-      matches: scored.map(({ inst, score, reasons }) => ({
-        name: inst.name,
-        type: inst.type,
-        fields: inst.fields,
-        stages: inst.stages,
-        amountRange: `${inst.amountMin}-${inst.amountMax}万元`,
-        city: inst.city,
-        preference: inst.preference,
-        contact: inst.contact,
-        phone: inst.phone,
-        matchScore: score,
-        reasons
-      }))
+      matches: scored.map(({ inst, score, reasons }) => this.mapInstitution(inst, score, reasons))
     }
   }
 
@@ -141,6 +179,18 @@ export class MatchService implements OnModuleInit {
     const limit = dto.limit ?? 5
 
     const all = await this.companies.find()
+
+    // 无任何条件 → 列出全部项目方公司
+    if (this.isEmptyCriteria(criteria)) {
+      const list = all.slice(0, dto.limit ?? 20)
+      return {
+        query: criteria,
+        listAll: true,
+        count: list.length,
+        matches: list.map((c) => this.mapCompany(c, 0, []))
+      }
+    }
+
     const scored = all
       .map((c) => {
         const reasons: string[] = []
@@ -179,20 +229,7 @@ export class MatchService implements OnModuleInit {
     return {
       query: criteria,
       count: scored.length,
-      matches: scored.map(({ c, score, reasons }) => ({
-        name: c.name,
-        field: c.field,
-        city: c.city,
-        stage: c.stage,
-        fundingNeed: `${c.fundingNeed}万元`,
-        valuation: `${c.valuation}万元`,
-        teamSize: c.teamSize,
-        business: c.business,
-        contact: c.contact,
-        phone: c.phone,
-        matchScore: score,
-        reasons
-      }))
+      matches: scored.map(({ c, score, reasons }) => this.mapCompany(c, score, reasons))
     }
   }
 
