@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
 import { ChatModule } from './chat/chat.module'
+import { MatchModule } from './match/match.module'
 import { MailModule } from './mail/mail.module'
 import { RedisModule } from './redis/redis.module'
 import { User } from './user/user.entity'
@@ -25,6 +26,7 @@ import { UserModule } from './user/user.module'
         password: config.get<string>('MYSQL_PASSWORD') ?? '',
         database: config.get<string>('MYSQL_DATABASE') ?? 'nest_app',
         entities: [User],
+        autoLoadEntities: true,
         synchronize: String(config.get<string>('MYSQL_SYNCHRONIZE') ?? 'false') === 'true',
         charset: 'utf8mb4_unicode_ci',
         timezone: 'Z'
@@ -34,7 +36,8 @@ import { UserModule } from './user/user.module'
     MailModule,
     AuthModule,
     UserModule,
-    ChatModule
+    ChatModule,
+    MatchModule
   ],
   controllers: [AppController]
 })

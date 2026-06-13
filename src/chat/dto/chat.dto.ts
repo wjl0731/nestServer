@@ -19,7 +19,7 @@ export class ChatCompletionDto {
 
   @IsOptional()
   @IsString()
-  provider?: string // qwen | deepseek | openai
+  provider?: string // qwen | deepseek | openai | coze
 
   @IsOptional()
   @IsString()

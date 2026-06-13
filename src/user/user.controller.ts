@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common'
 import { CurrentUser, CurrentUserPayload } from '../auth/current-user.decorator'
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { TokenAuthGuard } from '../auth/token-auth.guard'
 import { UpdateUserInfoDto } from './dto/user.dto'
 import { UserService } from './user.service'
 
 @Controller('user')
-@UseGuards(JwtAuthGuard)
+@UseGuards(TokenAuthGuard)
 export class UserController {
   constructor(private readonly users: UserService) {}
 

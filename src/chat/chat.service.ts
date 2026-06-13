@@ -4,6 +4,7 @@ import { IChatProvider, StreamHandler, ChatCallOptions } from './providers/provi
 import { QwenProvider } from './providers/qwen.provider'
 import { DeepSeekProvider } from './providers/deepseek.provider'
 import { OpenAIProvider } from './providers/openai.provider'
+import { CozeProvider } from './providers/coze.provider'
 import { ChatMessageDto } from './dto/chat.dto'
 
 @Injectable()
@@ -15,12 +16,14 @@ export class ChatService {
     config: ConfigService,
     @Inject(QwenProvider) qwen: QwenProvider,
     @Inject(DeepSeekProvider) deepseek: DeepSeekProvider,
-    @Inject(OpenAIProvider) openai: OpenAIProvider
+    @Inject(OpenAIProvider) openai: OpenAIProvider,
+    @Inject(CozeProvider) coze: CozeProvider
   ) {
     this.providers = new Map<string, IChatProvider>([
       [qwen.name, qwen],
       [deepseek.name, deepseek],
-      [openai.name, openai]
+      [openai.name, openai],
+      [coze.name, coze]
     ])
     this.defaultProviderName = config.get<string>('DEFAULT_PROVIDER') || 'qwen'
   }
